@@ -3,20 +3,49 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>还款进度 · 严洁菲</title>
+<title>还款进度 · 严洁菲 & 严创辉</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   body { font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #1a1a1a; min-height: 100vh; }
 
-  .header { background: #1a1a2e; color: white; padding: 20px 16px 28px; }
-  .header-title { font-size: 13px; opacity: 0.6; margin-bottom: 4px; }
-  .header-name { font-size: 17px; font-weight: 600; margin-bottom: 20px; }
-  .balance-label { font-size: 13px; opacity: 0.7; margin-bottom: 6px; }
-  .balance-amount { font-size: 44px; font-weight: 700; letter-spacing: -1px; margin-bottom: 18px; }
-  .balance-amount .unit { font-size: 24px; font-weight: 400; }
+  /* ── LOGIN SCREEN ── */
+  .login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; }
+  .login-logo { font-size: 48px; margin-bottom: 12px; }
+  .login-title { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  .login-sub { font-size: 13px; color: #999; margin-bottom: 36px; }
+  .identity-btns { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 300px; }
+  .identity-btn { padding: 16px; border-radius: 14px; border: 2px solid #e8e8e8; background: white; font-size: 16px; font-weight: 600; cursor: pointer; text-align: center; transition: border-color 0.15s; }
+  .identity-btn:active { border-color: #6366f1; }
+  .identity-btn.jie { border-color: #c7d2fe; background: #eef2ff; color: #4338ca; }
+  .identity-btn.ge { border-color: #bbf7d0; background: #f0fdf4; color: #166534; }
+  .identity-btn.guest { background: #f9f9f9; color: #999; font-size: 14px; font-weight: 400; }
+
+  /* PIN screen */
+  .pin-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; }
+  .pin-back { align-self: flex-start; background: none; border: none; font-size: 24px; cursor: pointer; color: #666; margin-bottom: 20px; }
+  .pin-title { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+  .pin-sub { font-size: 13px; color: #999; margin-bottom: 28px; }
+  .pin-dots { display: flex; gap: 12px; margin-bottom: 28px; }
+  .pin-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid #ccc; background: transparent; transition: background 0.15s; }
+  .pin-dot.filled { background: #6366f1; border-color: #6366f1; }
+  .pin-keypad { display: grid; grid-template-columns: repeat(3, 72px); gap: 12px; }
+  .pin-key { width: 72px; height: 72px; border-radius: 50%; border: none; background: white; font-size: 22px; font-weight: 500; cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  .pin-key:active { background: #e8e8f8; }
+  .pin-key.del { font-size: 18px; color: #666; }
+  .pin-error { color: #ef4444; font-size: 13px; margin-top: 12px; min-height: 18px; }
+
+  /* ── MAIN APP ── */
+  .app { display: none; }
+  .header { background: #1a1a2e; color: white; padding: 16px 16px 24px; }
+  .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .header-user { font-size: 13px; opacity: 0.7; }
+  .logout-btn { background: rgba(255,255,255,0.1); border: none; color: white; font-size: 12px; padding: 5px 10px; border-radius: 20px; cursor: pointer; }
+  .balance-label { font-size: 12px; opacity: 0.6; margin-bottom: 4px; }
+  .balance-amount { font-size: 42px; font-weight: 700; letter-spacing: -1px; margin-bottom: 16px; }
+  .balance-amount .unit { font-size: 22px; font-weight: 400; }
   .progress-bg { background: rgba(255,255,255,0.15); border-radius: 6px; height: 8px; margin-bottom: 8px; }
   .progress-fill { background: #4ade80; border-radius: 6px; height: 8px; transition: width 0.8s ease; min-width: 2px; }
-  .progress-text { display: flex; justify-content: space-between; font-size: 12px; opacity: 0.75; }
+  .progress-text { display: flex; justify-content: space-between; font-size: 12px; opacity: 0.7; }
 
   .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 14px 16px; }
   .stat { background: white; border-radius: 12px; padding: 14px; }
@@ -26,6 +55,24 @@
   .stat-value.green { color: #22c55e; }
 
   .done-banner { margin: 0 16px 10px; background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 12px; padding: 14px; text-align: center; color: #166534; font-size: 14px; font-weight: 600; display: none; }
+
+  /* Pending section */
+  .pending-section { margin: 0 16px 12px; }
+  .pending-title { font-size: 13px; font-weight: 600; color: #d97706; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .pending-badge { background: #f59e0b; color: white; font-size: 11px; padding: 1px 7px; border-radius: 20px; }
+  .pending-item { background: #fffbeb; border: 1.5px solid #fcd34d; border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; }
+  .pending-item-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .pending-desc { font-size: 14px; font-weight: 600; }
+  .pending-amount { font-size: 16px; font-weight: 700; }
+  .pending-amount.red { color: #ef4444; }
+  .pending-amount.green { color: #22c55e; }
+  .pending-meta { font-size: 12px; color: #92400e; margin-bottom: 8px; }
+  .pending-actions { display: flex; gap: 8px; }
+  .btn-confirm { flex: 1; padding: 9px; border-radius: 8px; border: none; background: #22c55e; color: white; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .btn-reject { flex: 1; padding: 9px; border-radius: 8px; border: none; background: #fee2e2; color: #dc2626; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .btn-confirm:active { opacity: 0.8; }
+  .btn-reject:active { opacity: 0.8; }
+  .pending-waiting { font-size: 12px; color: #92400e; font-style: italic; text-align: center; padding: 4px 0; }
 
   .card { background: white; border-radius: 14px; margin: 0 16px 12px; padding: 16px; }
   .card-title { font-size: 15px; font-weight: 600; margin-bottom: 14px; }
@@ -46,8 +93,10 @@
   .btn-repay { background: #6366f1; color: white; }
   .btn-loan { background: #fef3c7; color: #92400e; }
   .btn:active { opacity: 0.8; }
+  .readonly-notice { text-align: center; padding: 16px; color: #bbb; font-size: 13px; background: #fafafa; border-radius: 10px; }
 
-  .history-list { display: flex; flex-direction: column; gap: 2px; }
+  /* History */
+  .history-list { display: flex; flex-direction: column; }
   .history-item { display: flex; align-items: center; gap: 10px; padding: 12px 0; border-bottom: 1px solid #f5f5f5; }
   .history-item:last-child { border-bottom: none; }
   .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
@@ -61,85 +110,146 @@
   .history-amt.red { color: #ef4444; }
   .history-amt.green { color: #22c55e; }
   .history-bal { font-size: 11px; color: #bbb; margin-top: 2px; }
-  .del-btn { background: none; border: none; font-size: 18px; color: #ddd; padding: 4px 6px; cursor: pointer; flex-shrink: 0; }
-  .del-btn:active { color: #ef4444; }
+  .del-req-btn { background: none; border: 1px solid #fca5a5; color: #ef4444; font-size: 11px; padding: 3px 8px; border-radius: 6px; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
+  .del-req-btn:active { background: #fee2e2; }
+  .del-pending-tag { font-size: 11px; color: #d97706; background: #fef3c7; padding: 3px 8px; border-radius: 6px; flex-shrink: 0; white-space: nowrap; }
+  .del-confirm-btn { font-size: 11px; color: #dc2626; background: #fee2e2; border: none; padding: 3px 8px; border-radius: 6px; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
 
   .loading { text-align: center; padding: 24px; color: #bbb; font-size: 13px; }
   .empty { text-align: center; padding: 20px; color: #ccc; font-size: 13px; }
-
-  .bottom-safe { height: 20px; }
+  .bottom-safe { height: 24px; }
 </style>
 </head>
 <body>
 
-<div class="header">
-  <div class="header-title">还款追踪</div>
-  <div class="header-name">严洁菲 → 严创辉</div>
-  <div class="balance-label">当前欠款余额</div>
-  <div class="balance-amount"><span class="unit">¥</span><span id="balanceNum">--</span></div>
-  <div class="progress-bg">
-    <div class="progress-fill" id="progressFill" style="width:0%"></div>
-  </div>
-  <div class="progress-text">
-    <span>已还 <span id="repaidPct">0</span>%</span>
-    <span>目标：还清 ¥<span id="totalLoanPct">0</span></span>
+<!-- LOGIN SCREEN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-logo">💰</div>
+  <div class="login-title">还款进度追踪</div>
+  <div class="login-sub">严洁菲 & 严创辉</div>
+  <div class="identity-btns">
+    <button class="identity-btn jie" onclick="selectIdentity('yanjiefei')">👩 我是严洁菲</button>
+    <button class="identity-btn ge" onclick="selectIdentity('yanchuanghui')">👨 我是严创辉</button>
+    <button class="identity-btn guest" onclick="enterAsGuest()">只是看看余额</button>
   </div>
 </div>
 
-<div class="stats">
-  <div class="stat">
-    <div class="stat-label">累计借款</div>
-    <div class="stat-value red" id="totalLoan">¥--</div>
+<!-- PIN SCREEN -->
+<div class="pin-screen" id="pinScreen" style="display:none">
+  <button class="pin-back" onclick="backToLogin()">←</button>
+  <div class="pin-title" id="pinTitle">请输入 PIN 码</div>
+  <div class="pin-sub" id="pinSub">验证身份后可操作记录</div>
+  <div class="pin-dots" id="pinDots">
+    <div class="pin-dot" id="d0"></div>
+    <div class="pin-dot" id="d1"></div>
+    <div class="pin-dot" id="d2"></div>
+    <div class="pin-dot" id="d3"></div>
+    <div class="pin-dot" id="d4"></div>
   </div>
-  <div class="stat">
-    <div class="stat-label">累计已还</div>
-    <div class="stat-value green" id="totalRepaid">¥--</div>
+  <div class="pin-keypad">
+    <button class="pin-key" onclick="pinInput('1')">1</button>
+    <button class="pin-key" onclick="pinInput('2')">2</button>
+    <button class="pin-key" onclick="pinInput('3')">3</button>
+    <button class="pin-key" onclick="pinInput('4')">4</button>
+    <button class="pin-key" onclick="pinInput('5')">5</button>
+    <button class="pin-key" onclick="pinInput('6')">6</button>
+    <button class="pin-key" onclick="pinInput('7')">7</button>
+    <button class="pin-key" onclick="pinInput('8')">8</button>
+    <button class="pin-key" onclick="pinInput('9')">9</button>
+    <button class="pin-key" style="visibility:hidden"></button>
+    <button class="pin-key" onclick="pinInput('0')">0</button>
+    <button class="pin-key del" onclick="pinDelete()">⌫</button>
   </div>
+  <div class="pin-error" id="pinError"></div>
 </div>
 
-<div class="done-banner" id="doneBanner">🎉 全部还清了！太棒了！</div>
-
-<div class="card">
-  <div class="tabs">
-    <button class="tab active" id="tabRepay" onclick="switchTab('repay')">记录还款</button>
-    <button class="tab" id="tabLoan" onclick="switchTab('loan')">新增借款</button>
+<!-- MAIN APP -->
+<div class="app" id="mainApp">
+  <div class="header">
+    <div class="header-top">
+      <div class="header-user" id="headerUser"></div>
+      <button class="logout-btn" onclick="logout()">切换身份</button>
+    </div>
+    <div class="balance-label">当前欠款余额（已确认）</div>
+    <div class="balance-amount"><span class="unit">¥</span><span id="balanceNum">--</span></div>
+    <div class="progress-bg">
+      <div class="progress-fill" id="progressFill" style="width:0%"></div>
+    </div>
+    <div class="progress-text">
+      <span>已还 <span id="repaidPct">0</span>%</span>
+      <span>目标：还清 ¥<span id="totalLoanPct">0</span></span>
+    </div>
   </div>
 
-  <div id="repayPanel">
-    <div class="form-row">
-      <input type="number" id="repayAmount" placeholder="还款金额（元）" inputmode="numeric">
-      <input type="date" id="repayDate" style="max-width:150px">
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-label">累计借款</div>
+      <div class="stat-value red" id="totalLoan">¥--</div>
     </div>
-    <div class="form-group" style="margin-top:8px">
-      <input type="text" id="repayNote" placeholder="备注（可选）">
+    <div class="stat">
+      <div class="stat-label">累计已还</div>
+      <div class="stat-value green" id="totalRepaid">¥--</div>
     </div>
-    <button class="btn btn-repay" onclick="submitRepay()">✓ 确认还款</button>
   </div>
 
-  <div id="loanPanel" style="display:none">
-    <div class="form-row">
-      <input type="number" id="loanAmount" placeholder="借款金额（元）" inputmode="numeric">
-      <input type="date" id="loanDate" style="max-width:150px">
+  <div class="done-banner" id="doneBanner">🎉 全部还清了！太棒了！</div>
+
+  <!-- Pending items -->
+  <div class="pending-section" id="pendingSection" style="display:none">
+    <div class="pending-title">
+      ⏳ 待确认
+      <span class="pending-badge" id="pendingBadge">0</span>
     </div>
-    <div class="form-group" style="margin-top:8px">
-      <input type="text" id="loanNote" placeholder="备注（可选）">
-    </div>
-    <button class="btn btn-loan" onclick="submitLoan()">+ 新增借款记录</button>
+    <div id="pendingList"></div>
   </div>
+
+  <!-- Action card -->
+  <div class="card" id="actionCard">
+    <div class="tabs" id="tabsRow">
+      <button class="tab active" id="tabRepay" onclick="switchTab('repay')">记录还款</button>
+      <button class="tab" id="tabLoan" onclick="switchTab('loan')">新增借款</button>
+    </div>
+
+    <div id="repayPanel">
+      <div class="form-row">
+        <input type="number" id="repayAmount" placeholder="还款金额（元）" inputmode="numeric">
+        <input type="date" id="repayDate" style="max-width:150px">
+      </div>
+      <div class="form-group" style="margin-top:8px">
+        <input type="text" id="repayNote" placeholder="备注（可选）">
+      </div>
+      <button class="btn btn-repay" onclick="submitRepay()">提交还款（待哥哥确认）</button>
+    </div>
+
+    <div id="loanPanel" style="display:none">
+      <div class="form-row">
+        <input type="number" id="loanAmount" placeholder="借款金额（元）" inputmode="numeric">
+        <input type="date" id="loanDate" style="max-width:150px">
+      </div>
+      <div class="form-group" style="margin-top:8px">
+        <input type="text" id="loanNote" placeholder="备注（可选）">
+      </div>
+      <button class="btn btn-loan" onclick="submitLoan()">提交借款（待洁菲确认）</button>
+    </div>
+  </div>
+
+  <!-- History -->
+  <div class="card">
+    <div class="card-title">交易历史（已确认）</div>
+    <div class="history-list" id="historyList">
+      <div class="loading">加载中...</div>
+    </div>
+  </div>
+
+  <div class="bottom-safe"></div>
 </div>
-
-<div class="card">
-  <div class="card-title">交易历史</div>
-  <div class="history-list" id="historyList">
-    <div class="loading">加载中...</div>
-  </div>
-</div>
-
-<div class="bottom-safe"></div>
 
 <script>
 const SUPABASE_URL = 'https://fckacvavqrxlriuutsol.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZja2FjdmF2cXJ4bHJpdXV0c29sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1MjY1NzMsImV4cCI6MjA5ODEwMjU3M30.q4X3zEdJZ21zVAe12hUvUfGiD0N6_0vMw-QFaZYUh_k';
+const PINS = { yanjiefei: '10646', yanchuanghui: '15014' };
+const NAMES = { yanjiefei: '严洁菲', yanchuanghui: '严创辉', guest: '访客' };
+const OTHER = { yanjiefei: 'yanchuanghui', yanchuanghui: 'yanjiefei' };
 
 const HEADERS = {
   'apikey': SUPABASE_KEY,
@@ -149,28 +259,122 @@ const HEADERS = {
 };
 
 const INITIAL_DATA = [
-  { type: 'loan',  date: '2025-07-10', amount: 15000, note: '借款' },
-  { type: 'repay', date: '2025-07-15', amount: 1000,  note: '还款' },
-  { type: 'repay', date: '2025-08-15', amount: 1000,  note: '还款' },
-  { type: 'repay', date: '2025-09-15', amount: 1000,  note: '还款' },
-  { type: 'loan',  date: '2026-06-21', amount: 1700,  note: '借款' },
-  { type: 'loan',  date: '2026-06-21', amount: 6000,  note: '借款' },
-  { type: 'loan',  date: '2026-06-21', amount: 6300,  note: '借款' },
-  { type: 'loan',  date: '2026-06-25', amount: 14000, note: '借款' },
-  { type: 'loan',  date: '2026-06-25', amount: 9200,  note: '借款' },
-  { type: 'loan',  date: '2026-06-27', amount: 17200, note: '借款' },
-  { type: 'loan',  date: '2026-06-27', amount: 2000,  note: '借款' },
+  { type: 'loan',  date: '2025-07-10', amount: 15000, note: '借款', status: 'confirmed', created_by: 'yanchuanghui' },
+  { type: 'repay', date: '2025-07-15', amount: 1000,  note: '还款', status: 'confirmed', created_by: 'yanjiefei' },
+  { type: 'repay', date: '2025-08-15', amount: 1000,  note: '还款', status: 'confirmed', created_by: 'yanjiefei' },
+  { type: 'repay', date: '2025-09-15', amount: 1000,  note: '还款', status: 'confirmed', created_by: 'yanjiefei' },
+  { type: 'loan',  date: '2026-06-21', amount: 1700,  note: '借款', status: 'confirmed', created_by: 'yanchuanghui' },
+  { type: 'loan',  date: '2026-06-21', amount: 6000,  note: '借款', status: 'confirmed', created_by: 'yanchuanghui' },
+  { type: 'loan',  date: '2026-06-21', amount: 6300,  note: '借款', status: 'confirmed', created_by: 'yanchuanghui' },
+  { type: 'loan',  date: '2026-06-25', amount: 14000, note: '借款', status: 'confirmed', created_by: 'yanchuanghui' },
+  { type: 'loan',  date: '2026-06-25', amount: 9200,  note: '借款', status: 'confirmed', created_by: 'yanchuanghui' },
+  { type: 'loan',  date: '2026-06-27', amount: 17200, note: '借款', status: 'confirmed', created_by: 'yanchuanghui' },
+  { type: 'loan',  date: '2026-06-27', amount: 2000,  note: '借款', status: 'confirmed', created_by: 'yanchuanghui' },
 ];
 
-async function apiFetch(path, options = {}) {
-  const res = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
-    headers: HEADERS,
-    ...options
-  });
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(err);
+let currentUser = null;
+let pendingPin = '';
+let pendingIdentity = '';
+
+// ── AUTH ──
+function selectIdentity(identity) {
+  pendingIdentity = identity;
+  pendingPin = '';
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('pinScreen').style.display = 'flex';
+  document.getElementById('pinTitle').textContent = '你好，' + NAMES[identity];
+  document.getElementById('pinSub').textContent = '请输入你的 PIN 码';
+  document.getElementById('pinError').textContent = '';
+  updateDots();
+}
+
+function enterAsGuest() {
+  currentUser = 'guest';
+  showApp();
+}
+
+function backToLogin() {
+  document.getElementById('pinScreen').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+}
+
+function pinInput(digit) {
+  if (pendingPin.length >= 5) return;
+  pendingPin += digit;
+  updateDots();
+  if (pendingPin.length === 5) {
+    setTimeout(checkPin, 100);
   }
+}
+
+function pinDelete() {
+  pendingPin = pendingPin.slice(0, -1);
+  updateDots();
+  document.getElementById('pinError').textContent = '';
+}
+
+function updateDots() {
+  for (let i = 0; i < 5; i++) {
+    document.getElementById('d' + i).classList.toggle('filled', i < pendingPin.length);
+  }
+}
+
+function checkPin() {
+  if (pendingPin === PINS[pendingIdentity]) {
+    currentUser = pendingIdentity;
+    document.getElementById('pinScreen').style.display = 'none';
+    showApp();
+  } else {
+    document.getElementById('pinError').textContent = 'PIN 码错误，请重试';
+    pendingPin = '';
+    updateDots();
+  }
+}
+
+function logout() {
+  currentUser = null;
+  pendingPin = '';
+  pendingIdentity = '';
+  document.getElementById('mainApp').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+}
+
+function showApp() {
+  document.getElementById('mainApp').style.display = 'block';
+  const names = { yanjiefei: '👩 严洁菲', yanchuanghui: '👨 严创辉', guest: '👁 访客模式' };
+  document.getElementById('headerUser').textContent = names[currentUser];
+
+  // Guest: hide action card
+  const actionCard = document.getElementById('actionCard');
+  if (currentUser === 'guest') {
+    actionCard.innerHTML = '<div class="readonly-notice">👁 访客模式 · 仅可查看</div>';
+  } else {
+    // Customize submit buttons
+    if (currentUser === 'yanjiefei') {
+      document.getElementById('tabRepay').style.display = '';
+      document.getElementById('tabLoan').style.display = 'none';
+      document.querySelector('#repayPanel .btn-repay').textContent = '提交还款（待哥哥确认到账）';
+    } else {
+      document.getElementById('tabLoan').style.display = '';
+      document.getElementById('tabRepay').style.display = 'none';
+      switchTab('loan');
+      document.querySelector('#loanPanel .btn-loan').textContent = '提交借款（待洁菲确认）';
+    }
+  }
+
+  const today = new Date().toISOString().split('T')[0];
+  const rd = document.getElementById('repayDate');
+  const ld = document.getElementById('loanDate');
+  if (rd) rd.value = today;
+  if (ld) ld.value = today;
+
+  loadAndRender();
+}
+
+// ── API ──
+async function apiFetch(path, options = {}) {
+  const res = await fetch(SUPABASE_URL + '/rest/v1/' + path, { headers: HEADERS, ...options });
+  if (!res.ok) throw new Error(await res.text());
   const text = await res.text();
   return text ? JSON.parse(text) : null;
 }
@@ -179,15 +383,12 @@ async function loadAndRender() {
   try {
     let rows = await apiFetch('transactions?select=*&order=date.asc,created_at.asc,id.asc');
     if (rows.length === 0) {
-      await apiFetch('transactions', {
-        method: 'POST',
-        body: JSON.stringify(INITIAL_DATA)
-      });
+      await apiFetch('transactions', { method: 'POST', body: JSON.stringify(INITIAL_DATA) });
       rows = await apiFetch('transactions?select=*&order=date.asc,created_at.asc,id.asc');
     }
     render(rows);
   } catch (e) {
-    document.getElementById('historyList').innerHTML = '<div class="empty">加载失败，请检查网络：' + e.message + '</div>';
+    document.getElementById('historyList').innerHTML = '<div class="empty">加载失败：' + e.message + '</div>';
   }
 }
 
@@ -198,8 +399,12 @@ function fmtDate(d) {
 }
 
 function render(rows) {
+  const confirmed = rows.filter(r => r.status === 'confirmed');
+  const pending = rows.filter(r => r.status === 'pending_confirm' || r.status === 'pending_delete');
+
+  // Stats from confirmed only
   let totalLoan = 0, totalRepaid = 0, running = 0;
-  const withBal = rows.map(r => {
+  const withBal = confirmed.map(r => {
     if (r.type === 'loan') { totalLoan += Number(r.amount); running += Number(r.amount); }
     else { totalRepaid += Number(r.amount); running -= Number(r.amount); }
     return { ...r, bal: running };
@@ -215,29 +420,129 @@ function render(rows) {
   document.getElementById('totalRepaid').textContent = '¥' + fmt(totalRepaid);
   document.getElementById('doneBanner').style.display = balance <= 0 && totalLoan > 0 ? 'block' : 'none';
 
-  const list = document.getElementById('historyList');
-  if (withBal.length === 0) { list.innerHTML = '<div class="empty">暂无记录</div>'; return; }
+  // Pending
+  renderPending(pending);
 
-  list.innerHTML = [...withBal].reverse().map(r => `
-    <div class="history-item">
-      <div class="dot ${r.type}"></div>
-      <div class="history-info">
-        <div class="history-desc">${r.type === 'loan' ? '借款' : '还款'}${r.note && r.note !== '借款' && r.note !== '还款' ? ' · ' + r.note : ''}</div>
-        <div class="history-date">${fmtDate(r.date)}</div>
-      </div>
-      <div class="history-right">
-        <div class="history-amt ${r.type === 'loan' ? 'red' : 'green'}">
-          ${r.type === 'loan' ? '+' : '-'}¥${fmt(r.amount)}
+  // History
+  const list = document.getElementById('historyList');
+  if (withBal.length === 0) { list.innerHTML = '<div class="empty">暂无已确认记录</div>'; return; }
+
+  // Find records with pending_delete
+  const pendingDeleteIds = new Set(rows.filter(r => r.status === 'pending_delete').map(r => r.id));
+
+  list.innerHTML = [...withBal].reverse().map(r => {
+    let actionHtml = '';
+    if (currentUser !== 'guest') {
+      if (pendingDeleteIds.has(r.id)) {
+        // Check if current user can confirm delete
+        const delRow = rows.find(x => x.id === r.id);
+        if (delRow && delRow.delete_requested_by !== currentUser) {
+          actionHtml = `<button class="del-confirm-btn" onclick="confirmDelete(${r.id})">确认删除</button>`;
+        } else {
+          actionHtml = `<span class="del-pending-tag">待对方确认删除</span>`;
+        }
+      } else {
+        actionHtml = `<button class="del-req-btn" onclick="requestDelete(${r.id})">申请删除</button>`;
+      }
+    }
+    return `
+      <div class="history-item">
+        <div class="dot ${r.type}"></div>
+        <div class="history-info">
+          <div class="history-desc">${r.type === 'loan' ? '借款' : '还款'}${r.note && r.note !== '借款' && r.note !== '还款' ? ' · ' + r.note : ''}</div>
+          <div class="history-date">${fmtDate(r.date)}</div>
         </div>
-        <div class="history-bal">余 ¥${fmt(r.bal)}</div>
-      </div>
-      <button class="del-btn" onclick="deleteRow(${r.id})">×</button>
-    </div>
-  `).join('');
+        <div class="history-right">
+          <div class="history-amt ${r.type === 'loan' ? 'red' : 'green'}">
+            ${r.type === 'loan' ? '+' : '-'}¥${fmt(r.amount)}
+          </div>
+          <div class="history-bal">余 ¥${fmt(r.bal)}</div>
+        </div>
+        ${actionHtml}
+      </div>`;
+  }).join('');
 }
 
-async function deleteRow(id) {
-  if (!confirm('确定删除这条记录？')) return;
+function renderPending(pending) {
+  const section = document.getElementById('pendingSection');
+  const list = document.getElementById('pendingList');
+  if (pending.length === 0) { section.style.display = 'none'; return; }
+  section.style.display = 'block';
+  document.getElementById('pendingBadge').textContent = pending.length;
+
+  list.innerHTML = pending.map(r => {
+    const isMyItem = r.created_by === currentUser || r.delete_requested_by === currentUser;
+    const canConfirm = currentUser !== 'guest' && !isMyItem;
+
+    let desc = '', amtClass = '', amtSign = '';
+    if (r.status === 'pending_confirm') {
+      desc = r.type === 'loan'
+        ? `${NAMES[r.created_by]} 提交借款`
+        : `${NAMES[r.created_by]} 提交还款`;
+      amtClass = r.type === 'loan' ? 'red' : 'green';
+      amtSign = r.type === 'loan' ? '+' : '-';
+    } else {
+      desc = `申请删除一条${r.type === 'loan' ? '借款' : '还款'}记录`;
+      amtClass = r.type === 'loan' ? 'red' : 'green';
+      amtSign = r.type === 'loan' ? '+' : '-';
+    }
+
+    const meta = fmtDate(r.date) + (r.note ? ' · ' + r.note : '');
+
+    const actionsHtml = canConfirm
+      ? `<div class="pending-actions">
+           <button class="btn-confirm" onclick="confirmItem(${r.id}, '${r.status}')">✓ 确认</button>
+           <button class="btn-reject" onclick="rejectItem(${r.id}, '${r.status}')">✗ 拒绝</button>
+         </div>`
+      : `<div class="pending-waiting">等待对方确认...</div>`;
+
+    return `
+      <div class="pending-item">
+        <div class="pending-item-top">
+          <div class="pending-desc">${desc}</div>
+          <div class="pending-amount ${amtClass}">${amtSign}¥${fmt(r.amount)}</div>
+        </div>
+        <div class="pending-meta">${meta}</div>
+        ${actionsHtml}
+      </div>`;
+  }).join('');
+}
+
+async function confirmItem(id, status) {
+  if (status === 'pending_confirm') {
+    await apiFetch('transactions?id=eq.' + id, {
+      method: 'PATCH',
+      body: JSON.stringify({ status: 'confirmed' })
+    });
+  } else if (status === 'pending_delete') {
+    await apiFetch('transactions?id=eq.' + id, { method: 'DELETE' });
+  }
+  loadAndRender();
+}
+
+async function rejectItem(id, status) {
+  if (status === 'pending_confirm') {
+    await apiFetch('transactions?id=eq.' + id, { method: 'DELETE' });
+  } else if (status === 'pending_delete') {
+    await apiFetch('transactions?id=eq.' + id, {
+      method: 'PATCH',
+      body: JSON.stringify({ status: 'confirmed', delete_requested_by: null })
+    });
+  }
+  loadAndRender();
+}
+
+async function requestDelete(id) {
+  if (!confirm('申请删除这条记录？需要对方确认后才会删除。')) return;
+  await apiFetch('transactions?id=eq.' + id, {
+    method: 'PATCH',
+    body: JSON.stringify({ status: 'pending_delete', delete_requested_by: currentUser })
+  });
+  loadAndRender();
+}
+
+async function confirmDelete(id) {
+  if (!confirm('确认删除这条记录？删除后无法恢复。')) return;
   await apiFetch('transactions?id=eq.' + id, { method: 'DELETE' });
   loadAndRender();
 }
@@ -248,9 +553,13 @@ async function submitRepay() {
   const note = document.getElementById('repayNote').value.trim() || '还款';
   if (!amount || amount <= 0) { alert('请输入还款金额'); return; }
   if (!date) { alert('请选择还款日期'); return; }
-  await apiFetch('transactions', { method: 'POST', body: JSON.stringify({ type: 'repay', amount, date, note }) });
+  await apiFetch('transactions', {
+    method: 'POST',
+    body: JSON.stringify({ type: 'repay', amount, date, note, status: 'pending_confirm', created_by: currentUser })
+  });
   document.getElementById('repayAmount').value = '';
   document.getElementById('repayNote').value = '';
+  alert('还款记录已提交，等待哥哥确认到账 ✓');
   loadAndRender();
 }
 
@@ -260,9 +569,13 @@ async function submitLoan() {
   const note = document.getElementById('loanNote').value.trim() || '借款';
   if (!amount || amount <= 0) { alert('请输入借款金额'); return; }
   if (!date) { alert('请选择借款日期'); return; }
-  await apiFetch('transactions', { method: 'POST', body: JSON.stringify({ type: 'loan', amount, date, note }) });
+  await apiFetch('transactions', {
+    method: 'POST',
+    body: JSON.stringify({ type: 'loan', amount, date, note, status: 'pending_confirm', created_by: currentUser })
+  });
   document.getElementById('loanAmount').value = '';
   document.getElementById('loanNote').value = '';
+  alert('借款记录已提交，等待洁菲确认 ✓');
   loadAndRender();
 }
 
@@ -272,12 +585,6 @@ function switchTab(tab) {
   document.getElementById('repayPanel').style.display = tab === 'repay' ? '' : 'none';
   document.getElementById('loanPanel').style.display = tab === 'loan' ? '' : 'none';
 }
-
-const today = new Date().toISOString().split('T')[0];
-document.getElementById('repayDate').value = today;
-document.getElementById('loanDate').value = today;
-
-loadAndRender();
 </script>
 </body>
 </html>
