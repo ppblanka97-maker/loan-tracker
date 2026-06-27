@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>还款进度 · 严洁菲</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #1a1a1a; min-height: 100vh; }
+
+  .header { background: #1a1a2e; color: white; padding: 20px 16px 28px; }
+  .header-title { font-size: 13px; opacity: 0.6; margin-bottom: 4px; }
+  .header-name { font-size: 17px; font-weight: 600; margin-bottom: 20px; }
+  .balance-label { font-size: 13px; opacity: 0.7; margin-bottom: 6px; }
+  .balance-amount { font-size: 44px; font-weight: 700; letter-spacing: -1px; margin-bottom: 18px; }
+  .balance-amount .unit { font-size: 24px; font-weight: 400; }
+  .progress-bg { background: rgba(255,255,255,0.15); border-radius: 6px; height: 8px; margin-bottom: 8px; }
+  .progress-fill { background: #4ade80; border-radius: 6px; height: 8px; transition: width 0.8s ease; min-width: 2px; }
+  .progress-text { display: flex; justify-content: space-between; font-size: 12px; opacity: 0.75; }
+
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 14px 16px; }
+  .stat { background: white; border-radius: 12px; padding: 14px; }
+  .stat-label { font-size: 11px; color: #999; margin-bottom: 4px; }
+  .stat-value { font-size: 20px; font-weight: 700; }
+  .stat-value.red { color: #ef4444; }
+  .stat-value.green { color: #22c55e; }
+
+  .done-banner { margin: 0 16px 10px; background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 12px; padding: 14px; text-align: center; color: #166534; font-size: 14px; font-weight: 600; display: none; }
+
+  .card { background: white; border-radius: 14px; margin: 0 16px 12px; padding: 16px; }
+  .card-title { font-size: 15px; font-weight: 600; margin-bottom: 14px; }
+
+  .tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+  .tab { flex: 1; padding: 9px 0; text-align: center; border-radius: 8px; border: none; font-size: 13px; font-weight: 500; cursor: pointer; background: #f5f5f5; color: #666; }
+  .tab.active { background: #6366f1; color: white; font-weight: 600; }
+
+  .form-group { margin-bottom: 10px; }
+  .form-row { display: flex; gap: 8px; }
+  input[type=number], input[type=date], input[type=text] {
+    width: 100%; border: 1.5px solid #e8e8e8; border-radius: 10px;
+    padding: 11px 13px; font-size: 15px; outline: none; background: #fafafa;
+    -webkit-appearance: none; color: #1a1a1a;
+  }
+  input:focus { border-color: #6366f1; background: white; }
+  .btn { width: 100%; padding: 13px; border-radius: 10px; border: none; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 6px; }
+  .btn-repay { background: #6366f1; color: white; }
+  .btn-loan { background: #fef3c7; color: #92400e; }
+  .btn:active { opacity: 0.8; }
+
+  .history-list { display: flex; flex-direction: column; gap: 2px; }
+  .history-item { display: flex; align-items: center; gap: 10px; padding: 12px 0; border-bottom: 1px solid #f5f5f5; }
+  .history-item:last-child { border-bottom: none; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .dot.loan { background: #ef4444; }
+  .dot.repay { background: #22c55e; }
+  .history-info { flex: 1; min-width: 0; }
+  .history-desc { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .history-date { font-size: 11px; color: #aaa; margin-top: 2px; }
+  .history-right { text-align: right; flex-shrink: 0; }
+  .history-amt { font-size: 14px; font-weight: 700; }
+  .history-amt.red { color: #ef4444; }
+  .history-amt.green { color: #22c55e; }
+  .history-bal { font-size: 11px; color: #bbb; margin-top: 2px; }
+  .del-btn { background: none; border: none; font-size: 18px; color: #ddd; padding: 4px 6px; cursor: pointer; flex-shrink: 0; }
+  .del-btn:active { color: #ef4444; }
+
+  .loading { text-align: center; padding: 24px; color: #bbb; font-size: 13px; }
+  .empty { text-align: center; padding: 20px; color: #ccc; font-size: 13px; }
+
+  .bottom-safe { height: 20px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-title">还款追踪</div>
+  <div class="header-name">严洁菲 → 严创辉</div>
+  <div class="balance-label">当前欠款余额</div>
+  <div class="balance-amount"><span class="unit">¥</span><span id="balanceNum">--</span></div>
+  <div class="progress-bg">
+    <div class="progress-fill" id="progressFill" style="width:0%"></div>
+  </div>
+  <div class="progress-text">
+    <span>已还 <span id="repaidPct">0</span>%</span>
+    <span>目标：还清 ¥<span id="totalLoanPct">0</span></span>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat">
+    <div class="stat-label">累计借款</div>
+    <div class="stat-value red" id="totalLoan">¥--</div>
+  </div>
+  <div class="stat">
+    <div class="stat-label">累计已还</div>
+    <div class="stat-value green" id="totalRepaid">¥--</div>
+  </div>
+</div>
+
+<div class="done-banner" id="doneBanner">🎉 全部还清了！太棒了！</div>
+
+<div class="card">
+  <div class="tabs">
+    <button class="tab active" id="tabRepay" onclick="switchTab('repay')">记录还款</button>
+    <button class="tab" id="tabLoan" onclick="switchTab('loan')">新增借款</button>
+  </div>
+
+  <div id="repayPanel">
+    <div class="form-row">
+      <input type="number" id="repayAmount" placeholder="还款金额（元）" inputmode="numeric">
+      <input type="date" id="repayDate" style="max-width:150px">
+    </div>
+    <div class="form-group" style="margin-top:8px">
+      <input type="text" id="repayNote" placeholder="备注（可选）">
+    </div>
+    <button class="btn btn-repay" onclick="submitRepay()">✓ 确认还款</button>
+  </div>
+
+  <div id="loanPanel" style="display:none">
+    <div class="form-row">
+      <input type="number" id="loanAmount" placeholder="借款金额（元）" inputmode="numeric">
+      <input type="date" id="loanDate" style="max-width:150px">
+    </div>
+    <div class="form-group" style="margin-top:8px">
+      <input type="text" id="loanNote" placeholder="备注（可选）">
+    </div>
+    <button class="btn btn-loan" onclick="submitLoan()">+ 新增借款记录</button>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">交易历史</div>
+  <div class="history-list" id="historyList">
+    <div class="loading">加载中...</div>
+  </div>
+</div>
+
+<div class="bottom-safe"></div>
+
+<script>
+const SUPABASE_URL = 'https://fckacvavqrxlriuutsol.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZja2FjdmF2cXJ4bHJpdXV0c29sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1MjY1NzMsImV4cCI6MjA5ODEwMjU3M30.q4X3zEdJZ21zVAe12hUvUfGiD0N6_0vMw-QFaZYUh_k';
+
+const HEADERS = {
+  'apikey': SUPABASE_KEY,
+  'Authorization': 'Bearer ' + SUPABASE_KEY,
+  'Content-Type': 'application/json',
+  'Prefer': 'return=representation'
+};
+
+const INITIAL_DATA = [
+  { type: 'loan',  date: '2025-07-10', amount: 15000, note: '借款' },
+  { type: 'repay', date: '2025-07-15', amount: 1000,  note: '还款' },
+  { type: 'repay', date: '2025-08-15', amount: 1000,  note: '还款' },
+  { type: 'repay', date: '2025-09-15', amount: 1000,  note: '还款' },
+  { type: 'loan',  date: '2026-06-21', amount: 1700,  note: '借款' },
+  { type: 'loan',  date: '2026-06-21', amount: 6000,  note: '借款' },
+  { type: 'loan',  date: '2026-06-21', amount: 6300,  note: '借款' },
+  { type: 'loan',  date: '2026-06-25', amount: 14000, note: '借款' },
+  { type: 'loan',  date: '2026-06-25', amount: 9200,  note: '借款' },
+  { type: 'loan',  date: '2026-06-27', amount: 17200, note: '借款' },
+  { type: 'loan',  date: '2026-06-27', amount: 2000,  note: '借款' },
+];
+
+async function apiFetch(path, options = {}) {
+  const res = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
+    headers: HEADERS,
+    ...options
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(err);
+  }
+  const text = await res.text();
+  return text ? JSON.parse(text) : null;
+}
+
+async function loadAndRender() {
+  try {
+    let rows = await apiFetch('transactions?select=*&order=date.asc,created_at.asc,id.asc');
+    if (rows.length === 0) {
+      await apiFetch('transactions', {
+        method: 'POST',
+        body: JSON.stringify(INITIAL_DATA)
+      });
+      rows = await apiFetch('transactions?select=*&order=date.asc,created_at.asc,id.asc');
+    }
+    render(rows);
+  } catch (e) {
+    document.getElementById('historyList').innerHTML = '<div class="empty">加载失败，请检查网络：' + e.message + '</div>';
+  }
+}
+
+function fmt(n) { return Number(n).toLocaleString('zh-CN'); }
+function fmtDate(d) {
+  const [y, m, day] = d.split('-');
+  return y.slice(2) + '.' + parseInt(m) + '.' + parseInt(day);
+}
+
+function render(rows) {
+  let totalLoan = 0, totalRepaid = 0, running = 0;
+  const withBal = rows.map(r => {
+    if (r.type === 'loan') { totalLoan += Number(r.amount); running += Number(r.amount); }
+    else { totalRepaid += Number(r.amount); running -= Number(r.amount); }
+    return { ...r, bal: running };
+  });
+  const balance = totalLoan - totalRepaid;
+  const pct = totalLoan > 0 ? Math.min(100, Math.round(totalRepaid / totalLoan * 100)) : 0;
+
+  document.getElementById('balanceNum').textContent = fmt(balance);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('repaidPct').textContent = pct;
+  document.getElementById('totalLoanPct').textContent = fmt(totalLoan);
+  document.getElementById('totalLoan').textContent = '¥' + fmt(totalLoan);
+  document.getElementById('totalRepaid').textContent = '¥' + fmt(totalRepaid);
+  document.getElementById('doneBanner').style.display = balance <= 0 && totalLoan > 0 ? 'block' : 'none';
+
+  const list = document.getElementById('historyList');
+  if (withBal.length === 0) { list.innerHTML = '<div class="empty">暂无记录</div>'; return; }
+
+  list.innerHTML = [...withBal].reverse().map(r => `
+    <div class="history-item">
+      <div class="dot ${r.type}"></div>
+      <div class="history-info">
+        <div class="history-desc">${r.type === 'loan' ? '借款' : '还款'}${r.note && r.note !== '借款' && r.note !== '还款' ? ' · ' + r.note : ''}</div>
+        <div class="history-date">${fmtDate(r.date)}</div>
+      </div>
+      <div class="history-right">
+        <div class="history-amt ${r.type === 'loan' ? 'red' : 'green'}">
+          ${r.type === 'loan' ? '+' : '-'}¥${fmt(r.amount)}
+        </div>
+        <div class="history-bal">余 ¥${fmt(r.bal)}</div>
+      </div>
+      <button class="del-btn" onclick="deleteRow(${r.id})">×</button>
+    </div>
+  `).join('');
+}
+
+async function deleteRow(id) {
+  if (!confirm('确定删除这条记录？')) return;
+  await apiFetch('transactions?id=eq.' + id, { method: 'DELETE' });
+  loadAndRender();
+}
+
+async function submitRepay() {
+  const amount = parseFloat(document.getElementById('repayAmount').value);
+  const date = document.getElementById('repayDate').value;
+  const note = document.getElementById('repayNote').value.trim() || '还款';
+  if (!amount || amount <= 0) { alert('请输入还款金额'); return; }
+  if (!date) { alert('请选择还款日期'); return; }
+  await apiFetch('transactions', { method: 'POST', body: JSON.stringify({ type: 'repay', amount, date, note }) });
+  document.getElementById('repayAmount').value = '';
+  document.getElementById('repayNote').value = '';
+  loadAndRender();
+}
+
+async function submitLoan() {
+  const amount = parseFloat(document.getElementById('loanAmount').value);
+  const date = document.getElementById('loanDate').value;
+  const note = document.getElementById('loanNote').value.trim() || '借款';
+  if (!amount || amount <= 0) { alert('请输入借款金额'); return; }
+  if (!date) { alert('请选择借款日期'); return; }
+  await apiFetch('transactions', { method: 'POST', body: JSON.stringify({ type: 'loan', amount, date, note }) });
+  document.getElementById('loanAmount').value = '';
+  document.getElementById('loanNote').value = '';
+  loadAndRender();
+}
+
+function switchTab(tab) {
+  document.getElementById('tabRepay').classList.toggle('active', tab === 'repay');
+  document.getElementById('tabLoan').classList.toggle('active', tab === 'loan');
+  document.getElementById('repayPanel').style.display = tab === 'repay' ? '' : 'none';
+  document.getElementById('loanPanel').style.display = tab === 'loan' ? '' : 'none';
+}
+
+const today = new Date().toISOString().split('T')[0];
+document.getElementById('repayDate').value = today;
+document.getElementById('loanDate').value = today;
+
+loadAndRender();
+</script>
+</body>
+</html>
